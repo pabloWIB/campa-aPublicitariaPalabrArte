@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Administrador de anuncios - Meta Business</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+            background-color: #f0f2f5;
+            color: #1c1e21;
+        }
+
+        .header {
+            background: #fff;
+            border-bottom: 1px solid #dadde1;
+            padding: 0 16px;
+            height: 56px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: bold;
+            color: #1877f2;
+        }
+
+        .nav-item {
+            padding: 8px 12px;
+            border-radius: 6px;
+            background: #e4e6ea;
+            color: #65676b;
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .nav-item.active {
+            background: #1877f2;
+            color: white;
+        }
+
+        .header-right {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .account-selector {
+            padding: 8px 12px;
+            border: 1px solid #ccd0d5;
+            border-radius: 6px;
+            background: white;
+            font-size: 14px;
+        }
+
+        .main-container {
+            margin-top: 56px;
+            padding: 16px;
+            max-width: 1200px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .breadcrumb {
+            font-size: 14px;
+            color: #65676b;
+            margin-bottom: 16px;
+        }
+
+        .page-title {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .subtitle {
+            color: #65676b;
+            margin-bottom: 24px;
+        }
+
+        .toolbar {
+            background: white;
+            border-radius: 8px;
+            padding: 16px;
+            margin-bottom: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .toolbar-left {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid #ccd0d5;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .btn-primary {
+            background: #42b883;
+            color: white;
+            border-color: #42b883;
+        }
+
+        .btn-primary:hover {
+            background: #369870;
+        }
+
+        .search-box {
+            padding: 8px 12px;
+            border: 1px solid #ccd0d5;
+            border-radius: 6px;
+            width: 300px;
+        }
+
+        .campaigns-table {
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .table-header {
+            background: #f5f6f7;
+            border-bottom: 1px solid #dadde1;
+            padding: 12px 16px;
+            display: grid;
+            grid-template-columns: 40px 1fr 120px 120px 120px 120px 120px 100px;
+            align-items: center;
+            font-weight: 600;
+            font-size: 14px;
+            color: #65676b;
+        }
+
+        .table-row {
+            border-bottom: 1px solid #dadde1;
+            padding: 16px;
+            display: grid;
+            grid-template-columns: 40px 1fr 120px 120px 120px 120px 120px 100px;
+            align-items: center;
+            font-size: 14px;
+        }
+
+        .table-row:hover {
+            background: #f8f9fa;
+        }
+
+        .status-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: #42b883;
+        }
+
+        .status-paused {
+            background: #f02849;
+        }
+
+        .campaign-name {
+            font-weight: 500;
+            color: #1877f2;
+            cursor: pointer;
+        }
+
+        .campaign-name:hover {
+            text-decoration: underline;
+        }
+
+        .status-badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .status-active {
+            background: #d4edda;
+            color: #155724;
+        }
+
+        .status-paused {
+            background: #f8d7da;
+            color: #721c24;
+        }
+
+        .metric-value {
+            font-weight: 500;
+        }
+
+        .metric-change {
+            font-size: 12px;
+            color: #42b883;
+        }
+
+        .metric-change.negative {
+            color: #f02849;
+        }
+
+        .summary-cards {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+
+        .summary-card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1);
+        }
+
+        .card-title {
+            font-size: 14px;
+            color: #65676b;
+            margin-bottom: 8px;
+        }
+
+        .card-value {
+            font-size: 24px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .card-change {
+            font-size: 12px;
+            color: #42b883;
+        }
+
+        .filter-tabs {
+            display: flex;
+            gap: 4px;
+            margin-bottom: 16px;
+        }
+
+        .filter-tab {
+            padding: 8px 16px;
+            border-radius: 6px;
+            border: 1px solid #ccd0d5;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+        }
+
+        .filter-tab.active {
+            background: #e7f3ff;
+            border-color: #1877f2;
+            color: #1877f2;
+        }
+
+        .campaign-objective {
+            font-size: 12px;
+            color: #65676b;
+            margin-top: 4px;
+        }
+
+        .date-range {
+            padding: 8px 12px;
+            border: 1px solid #ccd0d5;
+            border-radius: 6px;
+            background: white;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <div class="header-left">
+            <div class="logo">Meta</div>
+            <div class="nav-item active">Administrador de anuncios</div>
+            <div class="nav-item">Audiencias</div>
+            <div class="nav-item">Biblioteca creativa</div>
+        </div>
+        <div class="header-right">
+            <select class="account-selector">
+                <option>PalabrArte - Comunicación Aumentativa</option>
+            </select>
+            <div class="date-range">Últimos 7 días</div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="breadcrumb">
+            Administrador de anuncios > Campañas
+        </div>
+
+        <h1 class="page-title">Campañas</h1>
+        <p class="subtitle">Administra y supervisa el rendimiento de tus campañas publicitarias</p>
+
+        <div class="summary-cards">
+            <div class="summary-card">
+                <div class="card-title">Alcance</div>
+                <div class="card-value">15,247</div>
+                <div class="card-change">+12.3% vs semana anterior</div>
+            </div>
+            <div class="summary-card">
+                <div class="card-title">Impresiones</div>
+                <div class="card-value">28,956</div>
+                <div class="card-change">+8.7% vs semana anterior</div>
+            </div>
+            <div class="summary-card">
+                <div class="card-title">Interacciones</div>
+                <div class="card-value">1,824</div>
+                <div class="card-change">+15.2% vs semana anterior</div>
+            </div>
+            <div class="summary-card">
+                <div class="card-title">Gasto total</div>
+                <div class="card-value">$485.20</div>
+                <div class="card-change">CTR: 6.3%</div>
+            </div>
+        </div>
+
+        <div class="filter-tabs">
+            <div class="filter-tab active">Todas las campañas</div>
+            <div class="filter-tab">Activas</div>
+            <div class="filter-tab">Pausadas</div>
+            <div class="filter-tab">Completadas</div>
+        </div>
+
+        <div class="toolbar">
+            <div class="toolbar-left">
+                <button class="btn btn-primary">+ Crear</button>
+                <button class="btn">Editar</button>
+                <button class="btn">Duplicar</button>
+                <button class="btn">Más acciones</button>
+            </div>
+            <input type="text" class="search-box" placeholder="Buscar campañas...">
+        </div>
+
+        <div class="campaigns-table">
+            <div class="table-header">
+                <div></div>
+                <div>Nombre de campaña</div>
+                <div>Estado</div>
+                <div>Alcance</div>
+                <div>Impresiones</div>
+                <div>Interacciones</div>
+                <div>CTR</div>
+                <div>Gasto</div>
+            </div>
+            
+            <div class="table-row">
+                <div class="status-indicator"></div>
+                <div>
+                    <div class="campaign-name">PalabrArte - Concienciación CAA</div>
+                    <div class="campaign-objective">Reconocimiento de marca • Creada el 15 may. 2025</div>
+                </div>
+                <div>
+                    <span class="status-badge status-active">Activa</span>
+                </div>
+                <div>
+                    <div class="metric-value">12,547</div>
+                    <div class="metric-change">+18.2%</div>
+                </div>
+                <div>
+                    <div class="metric-value">23,891</div>
+                    <div class="metric-change">+12.1%</div>
+                </div>
+                <div>
+                    <div class="metric-value">1,506</div>
+                    <div class="metric-change">+22.3%</div>
+                </div>
+                <div>
+                    <div class="metric-value">6.3%</div>
+                    <div class="metric-change">+1.2%</div>
+                </div>
+                <div>
+                    <div class="metric-value">$385.50</div>
+                </div>
+            </div>
+
+            <div class="table-row">
+                <div class="status-indicator status-paused"></div>
+                <div>
+                    <div class="campaign-name">Educadores y Terapeutas - PalabrArte</div>
+                    <div class="campaign-objective">Generación de clientes potenciales • Creada el 10 may. 2025</div>
+                </div>
+                <div>
+                    <span class="status-badge status-paused">Pausada</span>
+                </div>
+                <div>
+                    <div class="metric-value">2,700</div>
+                    <div class="metric-change negative">-5.4%</div>
+                </div>
+                <div>
+                    <div class="metric-value">5,065</div>
+                    <div class="metric-change negative">-3.2%</div>
+                </div>
+                <div>
+                    <div class="metric-value">318</div>
+                    <div class="metric-change">+8.1%</div>
+                </div>
+                <div>
+                    <div class="metric-value">6.8%</div>
+                    <div class="metric-change">+0.8%</div>
+                </div>
+                <div>
+                    <div class="metric-value">$99.70</div>
+                </div>
+            </div>
+
+            <div class="table-row">
+                <div class="status-indicator"></div>
+                <div>
+                    <div class="campaign-name">Familias con Necesidades Especiales</div>
+                    <div class="campaign-objective">Tráfico • Creada el 8 may. 2025</div>
+                </div>
+                <div>
+                    <span class="status-badge status-active">Activa</span>
+                </div>
+                <div>
+                    <div class="metric-value">8,423</div>
+                    <div class="metric-change">+9.7%</div>
+                </div>
+                <div>
+                    <div class="metric-value">15,247</div>
+                    <div class="metric-change">+6.3%</div>
+                </div>
+                <div>
+                    <div class="metric-value">892</div>
+                    <div class="metric-change">+14.5%</div>
+                </div>
+                <div>
+                    <div class="metric-value">5.9%</div>
+                    <div class="metric-change">+0.6%</div>
+                </div>
+                <div>
+                    <div class="metric-value">$245.30</div>
+                </div>
+            </div>
+
+            <div class="table-row">
+                <div class="status-indicator"></div>
+                <div>
+                    <div class="campaign-name">Instituciones Educativas - Demo</div>
+                    <div class="campaign-objective">Conversiones • Creada el 5 may. 2025</div>
+                </div>
+                <div>
+                    <span class="status-badge status-active">Activa</span>
+                </div>
+                <div>
+                    <div class="metric-value">5,892</div>
+                    <div class="metric-change">+25.1%</div>
+                </div>
+                <div>
+                    <div class="metric-value">11,456</div>
+                    <div class="metric-change">+19.8%</div>
+                </div>
+                <div>
+                    <div class="metric-value">687</div>
+                    <div class="metric-change">+31.2%</div>
+                </div>
+                <div>
+                    <div class="metric-value">6.0%</div>
+                    <div class="metric-change">+1.1%</div>
+                </div>
+                <div>
+                    <div class="metric-value">$198.90</div>
+                </div>
+            </div>
+
+            <div class="table-row">
+                <div class="status-indicator status-paused"></div>
+                <div>
+                    <div class="campaign-name">Retargeting - Visitantes Web</div>
+                    <div class="campaign-objective">Conversiones • Creada el 3 may. 2025</div>
+                </div>
+                <div>
+                    <span class="status-badge status-paused">Pausada</span>
+                </div>
+                <div>
+                    <div class="metric-value">1,245</div>
+                    <div class="metric-change negative">-12.3%</div>
+                </div>
+                <div>
+                    <div class="metric-value">2,891</div>
+                    <div class="metric-change negative">-8.7%</div>
+                </div>
+                <div>
+                    <div class="metric-value">156</div>
+                    <div class="metric-change">+2.1%</div>
+                </div>
+                <div>
+                    <div class="metric-value">5.4%</div>
+                    <div class="metric-change">+0.3%</div>
+                </div>
+                <div>
+                    <div class="metric-value">$85.40</div>
+                </div>
+            </div>
+        </div>
+
+        <div style="margin-top: 20px; padding: 16px; background: white; border-radius: 8px; box-shadow: 0 1px 2px rgba(0,0,0,0.1);">
+            <h3 style="margin-bottom: 12px; color: #1c1e21;">Resumen del rendimiento</h3>
+            <p style="color: #65676b; font-size: 14px; line-height: 1.5;">
+                La campaña principal <strong>"PalabrArte - Concienciación CAA"</strong> está funcionando excepcionalmente bien, con un CTR del 6.3% (muy por encima del promedio de la industria). 
+                La audiencia está respondiendo positivamente al mensaje sobre comunicación aumentativa y alternativa. 
+                Se recomienda aumentar el presupuesto de esta campaña y crear variaciones similares para diferentes segmentos de audiencia.
+            </p>
+        </div>
+    </div>
+
+    <script>
+        // Simulación de datos en tiempo real
+        function updateMetrics() {
+            const metrics = document.querySelectorAll('.metric-value');
+            metrics.forEach(metric => {
+                if (Math.random() > 0.95) { // 5% de probabilidad de actualización
+                    const currentValue = parseInt(metric.textContent.replace(/[,$]/g, ''));
+                    const change = Math.floor(Math.random() * 10) - 5; // Cambio aleatorio
+                    if (currentValue > 0) {
+                        metric.textContent = (currentValue + change).toLocaleString();
+                    }
+                }
+            });
+        }
+
+        // Actualizar métricas cada 3 segundos
+        setInterval(updateMetrics, 3000);
+
+        // Funcionalidad de pestañas
+        document.querySelectorAll('.filter-tab').forEach(tab => {
+            tab.addEventListener('click', function() {
+                document.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+
+        // Búsqueda funcional
+        document.querySelector('.search-box').addEventListener('input', function(e) {
+            const searchTerm = e.target.value.toLowerCase();
+            const rows = document.querySelectorAll('.table-row');
+            
+            rows.forEach(row => {
+                const campaignName = row.querySelector('.campaign-name').textContent.toLowerCase();
+                if (campaignName.includes(searchTerm)) {
+                    row.style.display = 'grid';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        });
+    </script>
+</body>
+</html>
